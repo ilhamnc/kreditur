@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             Int       @id @default(autoincrement())
+  username       String    @unique
+  password       String   
+  role           String    @default("DEBITUR") 
+  createdAt      DateTime  @default(now())
+  debiturProfile Debitur? 
+  kreditsDibuat  Kredit[]  @relation("Creator")
+}
+
+model Debitur {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  namaLengkap  String
+  alamat       String?  @db.Text
+  usia         Int?
+  jenisKelamin String?  
+  noHp         String?  @unique
+  catatan      String?  @db.Text
+  kredits      Kredit[] 
+}
+
+model Product {
+  id           Int      @id @default(autoincrement())
+  nama         String
+  hargaKulakan Float    @default(0)
+  hargaJual    Float    @default(0)
+  stok         Int      @default(0)
+  cashback     Float    @default(0) // BARU
+  items        KreditItem[]
+}
+
+model Kredit {
+  id                Int          @id @default(autoincrement())
+  debiturId         Int
+  debitur           Debitur      @relation(fields: [debiturId], references: [id])
+  creatorId         Int          
+  dibuatOleh        User         @relation("Creator", fields: [creatorId], references: [id])
+  tanggal           DateTime     @default(now())
+  tempo             DateTime?    
+  status            String       @default("PENGAJUAN") 
+  statusPengambilan String       @default("BELUM")     
+  totalHutang       Float        @default(0)
+  sisaHutang        Float        @default(0)
+  totalCashback     Float        @default(0) // BARU
+  totalProfit       Float        @default(0) 
+  items             KreditItem[]
+  pembayaran        Pembayaran[] 
+}
+
+model KreditItem {
+  id            Int      @id @default(autoincrement())
+  kreditId      Int
+  kredit        Kredit   @relation(fields: [kreditId], references: [id], onDelete: Cascade)
+  productId     Int
+  product       Product  @relation(fields: [productId], references: [id])
+  qty           Int
+  hargaKulakan  Float
+  hargaJual     Float
+  cashback      Float    @default(0) // BARU
+  subtotal      Float
+}
+
+model Pembayaran {
+  id            Int      @id @default(autoincrement())
+  kreditId      Int
+  kredit        Kredit   @relation(fields: [kreditId], references: [id], onDelete: Cascade)
+  tanggal       DateTime @default(now())
+  nominal       Float
+  diterimaOleh  String? 
+  buktiBayar    String?  @db.Text 
+}
+
+model Keuangan {
+  id         Int      @id @default(autoincrement())
+  tipe       String   
+  keterangan String   @db.Text
+  nominal    Float
+  tanggal    DateTime @default(now())
+}
