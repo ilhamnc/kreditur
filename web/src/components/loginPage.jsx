@@ -51,7 +51,7 @@ const LoginPage = ({ setToken, setUser }) => {
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Username / No. HP</label>
+              <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Username</label>
               <div className="relative">
                 <User className="absolute left-3 top-2.5 text-gray-400" size={18} />
                 <input 
